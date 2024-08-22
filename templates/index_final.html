@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TripAdvisor Review Analyzer</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap"
+    />
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+      body {
+        font-family: "Montserrat", sans-serif;
+        background-color: #f0f2f5;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+
+      h1,
+      h2 {
+        text-align: center;
+        color: #34e0a1;
+        margin-bottom: 20px;
+        font-weight: 600;
+        transition: color 0.3s ease;
+      }
+
+      h1:hover,
+      h2:hover {
+        color: #1e90ff;
+      }
+
+      .logo {
+        display: block;
+        margin: 20px auto;
+        width: 120px;
+        height: auto;
+        transition: transform 0.3s ease;
+      }
+
+      .logo:hover {
+        transform: scale(1.1);
+      }
+
+      form {
+        max-width: 800px !important;
+        width: 100% !important;
+        margin: 40px auto;
+        padding: 40px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        animation: fadeIn 1s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      label {
+        display: block;
+        font-size: 1.1em;
+        margin-bottom: 10px;
+        color: #000;
+        width: 100%;
+      }
+
+      input[type="text"] {
+        width: calc(100% - 24px);
+        padding: 12px;
+        font-size: 1em;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        outline: none;
+      }
+
+      input[type="text"]:focus {
+        border-color: #1e90ff;
+        box-shadow: 0 0 8px rgba(30, 144, 255, 0.5);
+        transform: scale(1.02);
+      }
+
+      button {
+        width: 100%;
+        padding: 12px;
+        font-size: 1.2em;
+        color: #fff;
+        background-color: #34e0a1;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #1e90ff;
+        transform: scale(1.05);
+      }
+
+      .error {
+        color: red;
+        text-align: center;
+        margin: 20px 0;
+        font-weight: 500;
+        animation: fadeIn 1s ease-in-out;
+      }
+
+      .summary {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 30px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        animation: fadeIn 1s ease-in-out;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      ul li {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+        color: #555;
+        transition: color 0.3s ease;
+      }
+
+      ul li:hover {
+        color: #1e90ff;
+      }
+
+      .review-container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        margin-bottom: 20px;
+        animation: fadeIn 1s ease-in-out;
+      }
+
+      .review {
+        margin-bottom: 15px;
+      }
+
+      .sentiment {
+        font-weight: bold;
+        color: #1e90ff;
+      }
+
+      .positive {
+        color: green;
+      }
+
+      .negative {
+        color: red;
+      }
+
+      .pie-chart-container {
+        margin: 40px 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <img
+      src="{{ url_for('static', filename='images/Tripadvisor_lockup_horizontal_secondary_registered.svg') }}"
+      alt="Logo"
+      class="logo"
+    />
+
+    <h1>TripAdvisor Review Analyzer</h1>
+
+    <form action="/" method="post">
+      <label for="url"><strong>Enter TripAdvisor URL:</strong></label>
+      <input type="text" id="url" name="url" required />
+      <button type="submit">Analyze</button>
+    </form>
+
+    <form action="/example" method="get">
+      <button type="submit">Example Working</button>
+    </form>
+
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %} {% if sentiment_summary %}
+    <div class="summary">
+      <h2>Sentiment Summary</h2>
+      <ul>
+        <li>Total Reviews: {{ sentiment_summary['Total Reviews'] }}</li>
+        <li>Positive Reviews: {{ sentiment_summary['Positive Reviews'] }}</li>
+        <li>Negative Reviews: {{ sentiment_summary['Negative Reviews'] }}</li>
+        <li>
+          Positive Percentage: {{ sentiment_summary['Positive Percentage'] }}%
+        </li>
+        <li>
+          Negative Percentage: {{ sentiment_summary['Negative Percentage'] }}%
+        </li>
+      </ul>
+    </div>
+
+    <div class="pie-chart-container">
+      {{ pie_chart|safe }}
+      <!-- Embeds the pie chart -->
+    </div>
+
+    {% endif %} {% if summary %}
+    <div class="summary">
+      <h2>Review Summary</h2>
+      <p>{{ summary }}</p>
+    </div>
+    {% endif %} {% if reviews %}
+    <div class="summary">
+      <h2>Reviews with Sentiments</h2>
+      {% for review in reviews %}
+      <div class="review-container">
+        <p class="review">{{ review.Review }}</p>
+        <p class="sentiment">
+          Sentiment:
+          <span
+            class="{{ 'positive' if review['Sentiment'] == 1 else 'negative' }}"
+          >
+            {{ 'Positive' if review['Sentiment'] == 1 else 'Negative' }}
+          </span>
+        </p>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </body>
+</html>
